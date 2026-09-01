@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATELIER — Intimate Essentials</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #FAF7F2;
+            --dark: #1A1714;
+            --surface: #F0EBE3;
+            --accent: #C4A882;
+            --accent-dark: #A8896A;
+            --rose: #D4A5A5;
+            --sage: #B5C4B1;
+            --blush: #E8D5D0;
+            --navy: #2C3E50;
+            --text: #1A1714;
+            --text-muted: #8A8480;
+            --text-light: #FAF7F2;
+            --border: #E5DFD5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 10000;
+        }
+
+        h1,h2,h3,h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 300; }
+        img { display: block; width: 100%; height: 100%; object-fit: cover; }
+        a { color: inherit; text-decoration: none; }
+
+        /* ===== PRELOADER ===== */
+        .preloader {
+            position: fixed; inset: 0;
+            background: var(--dark);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .preloader.done { transform: translateY(-100%); }
+        .preloader-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 300;
+            letter-spacing: 0.4em;
+            color: var(--text-light);
+            overflow: hidden;
+        }
+        .preloader-text span {
+            display: inline-block;
+            transform: translateY(110%);
+            animation: revealUp 0.7s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+        @keyframes revealUp { to { transform: translateY(0); } }
+
+        /* ===== SCROLL PROGRESS ===== */
+        .scroll-progress {
+            position: fixed; top: 0; left: 0;
+            height: 2px; background: var(--accent);
+            z-index: 1001; width: 0;
+            transition: width 0.05s linear;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 1000;
+            padding: 1.5rem 3rem;
+            transition: all 0.5s ease;
+        }
+        .nav.scrolled {
+            background: rgba(250,247,242,0.92);
+            backdrop-filter: blur(20px);
+            padding: 1rem 3rem;
+            box-shadow: 0 1px 0 var(--border);
+        }
+        .nav-inner {
+            display: flex; align-items: center; justify-content: space-between;
+            max-width: 1400px; margin: 0 auto;
+        }
+        .nav-links { display: flex; gap: 2.5rem; }
+        .nav-links a, .nav-actions a {
+            font-size: 0.78rem; letter-spacing: 0.12em;
+            text-transform: uppercase; position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute;
+            bottom: -4px; left: 0; width: 0; height: 1px;
+            background: var(--accent);
+            transition: width 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem; font-weight: 400;
+            letter-spacing: 0.3em;
+            position: absolute; left: 50%; transform: translateX(-50%);
+        }
+        .nav-actions { display: flex; gap: 2rem; }
+        .nav-actions a:hover { color: var(--accent-dark); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 4rem; padding: 8rem 3rem 4rem;
+            max-width: 1400px; margin: 0 auto;
+            align-items: center; position: relative;
+        }
+        .hero-content { padding-right: 2rem; }
+        .hero-label {
+            display: inline-block;
+            font-size: 0.72rem; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--accent-dark);
+            margin-bottom: 2rem;
+            opacity: 0; animation: fadeIn 1s ease 1.8s forwards;
+        }
+        .hero-title {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            line-height: 1.05; font-weight: 300; margin-bottom: 1.5rem;
+        }
+        .hero-title .line { display: block; overflow: hidden; }
+        .hero-title .line span {
+            display: inline-block;
+            transform: translateY(110%);
+            animation: revealUp 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+        }
+        .hero-title .line:nth-child(2) span { animation-delay: 0.15s; }
+        .hero-title em { font-style: italic; color: var(--accent-dark); }
+        .hero-subtitle {
+            font-size: 1rem; color: var(--text-muted);
+            line-height: 1.75; max-width: 400px; margin-bottom: 2.5rem;
+            opacity: 0; animation: fadeIn 1s ease 2s forwards;
+        }
+        .hero-cta { opacity: 0; animation: fadeIn 1s ease 2.2s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        .btn {
+            display: inline-block;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.78rem; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 1rem 2.5rem;
+            border: 1px solid var(--dark);
+            background: transparent; color: var(--dark);
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: color 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--dark);
+            transform: translateY(101%);
+            transition: transform 0.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .btn:hover { color: var(--text-light); }
+        .btn:hover::before { transform: translateY(0); }
+        .btn span { position: relative; z-index: 1; }
+
+        .hero-image-wrap {
+            position: relative; height: 75vh;
+            overflow: hidden;
+            opacity: 0; animation: fadeIn 0.01s 1.5s forwards;
+        }
+        .hero-image-wrap::before {
+            content: ''; position: absolute; inset: 0;
+            background: var(--accent); z-index: 2;
+            transform-origin: bottom;
+            animation: wipeUp 1.4s cubic-bezier(0.77, 0, 0.175, 1) 1.6s forwards;
+        }
+        @keyframes wipeUp { to { transform: scaleY(0); } }
+        .hero-image-wrap img {
+            transform: scale(1.15);
+            animation: imgScale 2s cubic-bezier(0.77, 0, 0.175, 1) 1.8s forwards;
+        }
+        @keyframes imgScale { to { transform: scale(1); } }
+        .hero-image-wrap::after {
+            content: ''; position: absolute;
+            top: -15px; right: -15px; bottom: 15px; left: 15px;
+            border: 1px solid var(--accent); z-index: -1;
+            opacity: 0; animation: fadeIn 1s ease 3s forwards;
+        }
+
+        .scroll-hint {
+            position: absolute; bottom: 3rem; left: 3rem;
+            display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+            opacity: 0; animation: fadeIn 1s ease 3.2s forwards;
+        }
+        .scroll-hint span {
+            font-size: 0.6rem; letter-spacing: 0.2em;
+            text-transform: uppercase; color: var(--text-muted);
+            writing-mode: vertical-rl;
+        }
+        .scroll-line {
+            width: 1px; height: 40px;
+            background: var(--border); position: relative; overflow: hidden;
+        }
+        .scroll-line::after {
+            content: ''; position: absolute;
+            top: -100%; left: 0; width: 100%; height: 100%;
+            background: var(--accent);
+            animation: scrollPulse 2s ease infinite;
+        }
+        @keyframes scrollPulse {
+            0% { top: -100%; }
+            100% { top: 100%; }
+        }
+
+        /* ===== MARQUEE ===== */
+        .marquee {
+            background: var(--dark); color: var(--text-light);
+            padding: 1rem 0; overflow: hidden; white-space: nowrap;
+        }
+        .marquee-inner {
+            display: inline-flex; gap: 3rem;
+            animation: marquee 25s linear infinite;
+            font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+        }
+        .marquee-inner span { flex-shrink: 0; }
+        .marquee-dot { color: var(--accent); }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* ===== SECTIONS ===== */
+        .section { padding: 8rem 3rem; max-width: 1400px; margin: 0 auto; }
+        .section-wide { padding: 8rem 3rem; }
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        .section-label {
+            display: inline-flex; align-items: center; gap: 1rem;
+            font-size: 0.68rem; letter-spacing: 0.25em;
+            text-transform: uppercase; color: var(--accent-dark);
+            margin-bottom: 1rem;
+        }
+        .section-label::before {
+            content: ''; width: 30px; height: 1px; background: var(--accent);
+        }
+        .section-title {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 300; line-height: 1.15;
+        }
+
+        /* ===== REVEAL ANIMATIONS ===== */
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: all 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal.revealed { opacity: 1; transform: translateY(0); }
+        .reveal-left {
+            opacity: 0; transform: translateX(-40px);
+            transition: all 0.9s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal-left.revealed { opacity: 1; transform: translateX(0); }
+        .reveal-scale {
+            opacity: 0; transform: scale(0.95);
+            transition: all 1s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal-scale.revealed { opacity: 1; transform: scale(1); }
+        .reveal-img { overflow: hidden; }
+        .reveal-img img {
+            transform: scale(1.2);
+            transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .reveal-img.revealed img { transform: scale(1); }
+
+        /* ===== COLLECTIONS ===== */
+        .collections-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.5rem;
+        }
+        .collection-card { cursor: pointer; }
+        .collection-image {
+            aspect-ratio: 3/4; overflow: hidden;
+            margin-bottom: 1.5rem; background: var(--surface);
+        }
+        .collection-image img {
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .collection-card:hover .collection-image img { transform: scale(1.06); }
+        .collection-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem; font-weight: 400; margin-bottom: 0.3rem;
+        }
+        .collection-count { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* ===== PRODUCTS ===== */
+        .products-section {
+            background: var(--surface);
+            padding: 8rem 3rem;
+        }
+        .products-inner { max-width: 1400px; margin: 0 auto; }
+        .products-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;
+        }
+        .product-card { cursor: pointer; }
+        .product-image {
+            position: relative; aspect-ratio: 3/4;
+            overflow: hidden; margin-bottom: 1.2rem;
+            background: var(--bg);
+        }
+        .product-image img {
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1),
+                        filter 0.6s ease;
+        }
+        .product-card:hover .product-image img {
+            transform: scale(1.06);
+            filter: brightness(0.92);
+        }
+        .product-overlay {
+            position: absolute; inset: 0;
+            background: rgba(26,23,20,0.25);
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 2rem;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        .product-card:hover .product-overlay { opacity: 1; }
+        .product-overlay button {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 0.8rem 2rem;
+            background: var(--text-light); border: none;
+            color: var(--dark); cursor: pointer;
+            transform: translateY(20px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.77, 0, 0.175, 1) 0.08s;
+        }
+        .product-card:hover .product-overlay button {
+            transform: translateY(0); opacity: 1;
+        }
+        .product-overlay button:hover {
+            background: var(--accent); color: var(--text-light);
+        }
+        .product-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem; font-weight: 400; margin-bottom: 0.25rem;
+        }
+        .product-price {
+            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;
+        }
+        .product-colors { display: flex; gap: 0.35rem; }
+        .color-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+        }
+        .color-dot:hover { transform: scale(1.3); }
+
+        /* ===== BRAND STORY ===== */
+        .story {
+            display: grid; grid-template-columns: 1.2fr 1fr;
+            gap: 6rem; align-items: center;
+            padding: 6rem 3rem; max-width: 1400px; margin: 0 auto;
+        }
+        .story-image { height: 70vh; overflow: hidden; position: relative; }
+        .story-image img { will-change: transform; }
+        .story-content { padding: 2rem 0; }
+        .story-content .section-label { justify-content: flex-start; }
+        .story-content h2 {
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300; line-height: 1.2; margin-bottom: 1.5rem;
+        }
+        .story-content p {
+            color: var(--text-muted); line-height: 1.85;
+            margin-bottom: 1.5rem; font-size: 0.95rem;
+        }
+
+        /* ===== FEATURED BANNER ===== */
+        .featured-banner {
+            background: var(--dark); color: var(--text-light);
+            padding: 8rem 3rem; text-align: center;
+            position: relative; overflow: hidden;
+        }
+        .featured-banner::before {
+            content: ''; position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(196,168,130,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .featured-banner h2 {
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 300; margin-bottom: 1rem; line-height: 1.1;
+        }
+        .featured-banner h2 em { font-style: italic; color: var(--accent); }
+        .featured-banner p {
+            color: rgba(250,247,242,0.55); font-size: 1rem;
+            margin-bottom: 2.5rem; max-width: 480px;
+            margin-left: auto; margin-right: auto; line-height: 1.75;
+        }
+        .featured-banner .btn {
+            border-color: rgba(250,247,242,0.3); color: var(--text-light);
+        }
+        .featured-banner .btn::before { background: var(--accent); }
+        .featured-banner .btn:hover { border-color: var(--accent); color: var(--dark); }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials {
+            padding: 8rem 3rem; max-width: 850px;
+            margin: 0 auto; text-align: center;
+        }
+        .testimonial-stars {
+            color: var(--accent); font-size: 0.85rem;
+            letter-spacing: 0.25em; margin-bottom: 2rem;
+        }
+        .testimonial-quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(1.4rem, 2.8vw, 2.1rem);
+            font-weight: 300; font-style: italic;
+            line-height: 1.55; margin-bottom: 2rem;
+        }
+        .testimonial-author {
+            font-size: 0.78rem; letter-spacing: 0.15em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+        .testimonial-dots {
+            display: flex; justify-content: center; gap: 0.5rem; margin-top: 2.5rem;
+        }
+        .testimonial-dots span {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--border); cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .testimonial-dots span.active {
+            background: var(--accent); transform: scale(1.2);
+        }
+
+        /* ===== NEWSLETTER ===== */
+        .newsletter {
+            background: var(--surface); padding: 6rem 3rem; text-align: center;
+        }
+        .newsletter h2 {
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            font-weight: 300; margin-bottom: 0.8rem;
+        }
+        .newsletter p {
+            color: var(--text-muted); margin-bottom: 2.5rem; font-size: 0.95rem;
+        }
+        .newsletter-form {
+            display: flex; max-width: 480px; margin: 0 auto;
+        }
+        .newsletter-form input {
+            flex: 1; padding: 1rem 1.5rem;
+            border: 1px solid var(--border); border-right: none;
+            background: var(--bg); font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem; outline: none;
+            transition: border-color 0.3s ease;
+        }
+        .newsletter-form input:focus { border-color: var(--accent); }
+        .newsletter-form input::placeholder { color: var(--text-muted); }
+        .newsletter-form button {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.72rem; letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 1rem 2rem;
+            background: var(--dark); color: var(--text-light);
+            border: 1px solid var(--dark); cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .newsletter-form button:hover {
+            background: var(--accent-dark); border-color: var(--accent-dark);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark); color: var(--text-light);
+            padding: 5rem 3rem 2rem;
+        }
+        .footer-inner {
+            max-width: 1400px; margin: 0 auto;
+            display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem; margin-bottom: 4rem;
+        }
+        .footer-brand {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35rem; letter-spacing: 0.3em; margin-bottom: 1rem;
+        }
+        .footer-desc {
+            color: rgba(250,247,242,0.45);
+            font-size: 0.85rem; line-height: 1.75; max-width: 280px;
+        }
+        .footer h4 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.68rem; letter-spacing: 0.2em;
+            text-transform: uppercase; font-weight: 500;
+            margin-bottom: 1.5rem; color: rgba(250,247,242,0.35);
+        }
+        .footer ul { list-style: none; }
+        .footer li { margin-bottom: 0.75rem; }
+        .footer a {
+            font-size: 0.85rem; color: rgba(250,247,242,0.6);
+            transition: color 0.3s ease;
+        }
+        .footer a:hover { color: var(--accent); }
+        .footer-bottom {
+            max-width: 1400px; margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(250,247,242,0.08);
+            display: flex; justify-content: space-between;
+            font-size: 0.72rem; color: rgba(250,247,242,0.25);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .hero { grid-template-columns: 1fr; gap: 3rem; padding-top: 6rem; }
+            .hero-image-wrap { height: 50vh; }
+            .hero-content { padding-right: 0; }
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .story { grid-template-columns: 1fr; gap: 3rem; }
+            .story-image { height: 50vh; }
+            .footer-inner { grid-template-columns: 1fr 1fr; }
+            .scroll-hint { display: none; }
+        }
+        @media (max-width: 768px) {
+            .nav-links, .nav-actions { display: none; }
+            .nav { padding: 1rem 1.5rem; }
+            .nav.scrolled { padding: 0.8rem 1.5rem; }
+            .section, .products-section { padding: 5rem 1.5rem; }
+            .hero { padding: 6rem 1.5rem 3rem; }
+            .collections-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .products-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .story { padding: 4rem 1.5rem; }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-form input { border-right: 1px solid var(--border); border-bottom: none; }
+            .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; }
+            .featured-banner { padding: 5rem 1.5rem; }
+            .testimonials { padding: 5rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Preloader -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-text" id="preloaderText"></div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <div class="nav-inner">
+            <div class="nav-links">
+                <a href="#collections">Shop</a>
+                <a href="#products">Collections</a>
+                <a href="#story">About</a>
+            </div>
+            <div class="nav-logo">ATELIER</div>
+            <div class="nav-actions">
+                <a href="#">Search</a>
+                <a href="#">Bag (0)</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <span class="hero-label">Autumn / Winter 2025</span>
+            <h1 class="hero-title">
+                <span class="line"><span>Intimate</span></span>
+                <span class="line"><span><em>Elegance</em></span></span>
+            </h1>
+            <p class="hero-subtitle">Thoughtfully crafted essentials designed to make you feel extraordinary — from the first layer to the last.</p>
+            <div class="hero-cta">
+                <a href="#collections" class="btn"><span>Explore Collection</span></a>
+            </div>
+        </div>
+        <div class="hero-image-wrap">
+            <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&h=1200&fit=crop&q=80" alt="Elegant silk">
+        </div>
+        <div class="scroll-hint">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="marquee">
+        <div class="marquee-inner">
+            <span>Free Shipping Over $150</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>New Arrivals Weekly</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>Sustainable Fabrics</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>30-Day Returns</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>Gift Wrapping Available</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>Free Shipping Over $150</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>New Arrivals Weekly</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>Sustainable Fabrics</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>30-Day Returns</span>
+            <span class="marquee-dot">&#9679;</span>
+            <span>Gift Wrapping Available</span>
+            <span class="marquee-dot">&#9679;</span>
+        </div>
+    </div>
+
+    <!-- Collections -->
+    <section class="section" id="collections">
+        <div class="section-header reveal">
+            <span class="section-label">Collections</span>
+            <h2 class="section-title">Curated for You</h2>
+        </div>
+        <div class="collections-grid">
+            <div class="collection-card reveal" style="transition-delay:0.1s">
+                <div class="collection-image reveal-img">
+                    <img src="https://images.unsplash.com/photo-1571513722275-4b41940f54b8?w=600&h=800&fit=crop&q=80" alt="Silk Essentials">
+                </div>
+                <h3 class="collection-name">Silk Essentials</h3>
+                <span class="collection-count">12 pieces</span>
+            </div>
+            <div class="collection-card reveal" style="transition-delay:0.2s">
+                <div class="collection-image reveal-img">
+                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&h=800&fit=crop&q=80" alt="Lace & Allure">
+                </div>
+                <h3 class="collection-name">Lace &amp; Allure</h3>
+                <span class="collection-count">8 pieces</span>
+            </div>
+            <div class="collection-card reveal" style="transition-delay:0.3s">
+                <div class="collection-image reveal-img">
+                    <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600&h=800&fit=crop&q=80" alt="Everyday Cotton">
+                </div>
+                <h3 class="collection-name">Everyday Cotton</h3>
+                <span class="collection-count">15 pieces</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section class="products-section" id="products">
+        <div class="products-inner">
+            <div class="section-header reveal">
+                <span class="section-label">Bestsellers</span>
+                <h2 class="section-title">Most Loved</h2>
+            </div>
+            <div class="products-grid">
+                <div class="product-card reveal" style="transition-delay:0.05s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707998?w=500&h=667&fit=crop&q=80" alt="Silk Camisole">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Silk Camisole</h4>
+                    <span class="product-price">$89</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.1s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=500&h=667&fit=crop&q=80" alt="Lace Bralette">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Lace Bralette</h4>
+                    <span class="product-price">$65</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                        <span class="color-dot" style="background:#2C3E50"></span>
+                        <span class="color-dot" style="background:#B5C4B1"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.15s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1485462537746-965f33f7f6a7?w=500&h=667&fit=crop&q=80" alt="Modal Brief">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Modal Brief</h4>
+                    <span class="product-price">$45</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                        <span class="color-dot" style="background:#B5C4B1"></span>
+                        <span class="color-dot" style="background:#E8D5D0"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.2s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=500&h=667&fit=crop&q=80" alt="Satin Robe">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Satin Robe</h4>
+                    <span class="product-price">$128</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#1A1714"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.25s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=500&h=667&fit=crop&q=80" alt="Cotton Lounge Set">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Cotton Lounge Set</h4>
+                    <span class="product-price">$95</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#B5C4B1"></span>
+                        <span class="color-dot" style="background:#E8D5D0"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.3s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1551232864-3f0890e580d9?w=500&h=667&fit=crop&q=80" alt="Mesh Bodysuit">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Mesh Bodysuit</h4>
+                    <span class="product-price">$110</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.35s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=667&fit=crop&q=80" alt="Silk Shorts">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Silk Shorts</h4>
+                    <span class="product-price">$55</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                        <span class="color-dot" style="background:#2C3E50"></span>
+                    </div>
+                </div>
+                <div class="product-card reveal" style="transition-delay:0.4s">
+                    <div class="product-image reveal-img">
+                        <img src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&h=667&fit=crop&q=80" alt="Lace Thong">
+                        <div class="product-overlay"><button>Quick View</button></div>
+                    </div>
+                    <h4 class="product-name">Lace Thong</h4>
+                    <span class="product-price">$38</span>
+                    <div class="product-colors">
+                        <span class="color-dot" style="background:#F5F0E8"></span>
+                        <span class="color-dot" style="background:#1A1714"></span>
+                        <span class="color-dot" style="background:#D4A5A5"></span>
+                        <span class="color-dot" style="background:#B5C4B1"></span>
+                        <span class="color-dot" style="background:#E8D5D0"></span>
+                        <span class="color-dot" style="background:#2C3E50"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand Story -->
+    <section class="story" id="story">
+        <div class="story-image reveal-img">
+            <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=900&h=700&fit=crop&q=80" alt="Our atelier" id="storyImg">
+        </div>
+        <div class="story-content">
+            <span class="section-label reveal-left">Our Story</span>
+            <h2 class="reveal-left" style="transition-delay:0.1s">Designed with intention, worn with confidence</h2>
+            <p class="reveal-left" style="transition-delay:0.2s">Every piece begins with a simple question: how should this make you feel? We source the finest silks, laces, and sustainable fabrics from around the world, crafting each garment with meticulous attention to detail.</p>
+            <p class="reveal-left" style="transition-delay:0.25s">Because intimate wear isn't just about what others see — it's about the quiet confidence that comes from knowing you're wearing something truly beautiful.</p>
+            <div class="reveal-left" style="transition-delay:0.3s">
+                <a href="#" class="btn"><span>Our Philosophy</span></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Banner -->
+    <section class="featured-banner">
+        <div class="reveal-scale">
+            <span class="section-label" style="color:var(--accent)">Limited Edition</span>
+            <h2>The <em>Noir</em> Collection</h2>
+            <p>A curated selection of our most exquisite pieces, reimagined in deep, rich tones for the season.</p>
+            <a href="#" class="btn"><span>Shop Now</span></a>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="reveal">
+            <div class="testimonial-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+            <blockquote class="testimonial-quote">"The silk camisole is unlike anything I've ever owned. The quality is extraordinary — it feels like a second skin. I've never felt more confident."</blockquote>
+            <span class="testimonial-author">— Sophia M., New York</span>
+            <div class="testimonial-dots">
+                <span class="active"></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter">
+        <div class="reveal">
+            <h2>Stay in Touch</h2>
+            <p>Be the first to know about new collections, exclusive offers, and styling tips.</p>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='Subscribed'; this.querySelector('input').value=''">
+                <input type="email" placeholder="Enter your email address" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div>
+                <div class="footer-brand">ATELIER</div>
+                <p class="footer-desc">Thoughtfully crafted intimate essentials for the modern woman. Sustainably made, beautifully designed.</p>
+            </div>
+            <div>
+                <h4>Shop</h4>
+                <ul>
+                    <li><a href="#">New Arrivals</a></li>
+                    <li><a href="#">Bestsellers</a></li>
+                    <li><a href="#">Silk Collection</a></li>
+                    <li><a href="#">Lace Collection</a></li>
+                    <li><a href="#">Loungewear</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>About</h4>
+                <ul>
+                    <li><a href="#">Our Story</a></li>
+                    <li><a href="#">Sustainability</a></li>
+                    <li><a href="#">Size Guide</a></li>
+                    <li><a href="#">Care Instructions</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Help</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Shipping &amp; Returns</a></li>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Gift Cards</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2025 Atelier. All rights reserved.</span>
+            <span>Privacy Policy &middot; Terms of Service</span>
+        </div>
+    </footer>
+
+    <script>
+        /* ===== PRELOADER ===== */
+        (function() {
+            const text = 'ATELIER';
+            const container = document.getElementById('preloaderText');
+            text.split('').forEach(function(char, i) {
+                const span = document.createElement('span');
+                span.textContent = char;
+                span.style.animationDelay = (i * 0.08) + 's';
+                container.appendChild(span);
+            });
+            setTimeout(function() {
+                document.getElementById('preloader').classList.add('done');
+            }, 1500);
+        })();
+
+        /* ===== SCROLL PROGRESS ===== */
+        var scrollProgress = document.getElementById('scrollProgress');
+        window.addEventListener('scroll', function() {
+            var scrollTop = window.scrollY;
+            var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            scrollProgress.style.width = ((scrollTop / docHeight) * 100) + '%';
+        });
+
+        /* ===== NAV SCROLL ===== */
+        var nav = document.getElementById('nav');
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 60) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        /* ===== INTERSECTION OBSERVER ===== */
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-scale, .reveal-img').forEach(function(el) {
+            observer.observe(el);
+        });
+
+        /* ===== PARALLAX (story image) ===== */
+        var storyImg = document.getElementById('storyImg');
+        if (storyImg) {
+            window.addEventListener('scroll', function() {
+                var rect = storyImg.getBoundingClientRect();
+                if (rect.bottom > 0 && rect.top < window.innerHeight) {
+                    var offset = (rect.top / window.innerHeight) * 40;
+                    storyImg.style.transform = 'translateY(' + offset + 'px) scale(1)';
+                }
+            }, { passive: true });
+        }
+
+        /* ===== SMOOTH ANCHOR SCROLL ===== */
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
